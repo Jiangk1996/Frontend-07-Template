@@ -1,0 +1,236 @@
+<!--
+ * @Author: ailiang
+ * @Date: 2020-5-01 09:37:35
+ * @LastEditors: ailiang
+ * @LastEditTime: 2020-12-01 10:04:35
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='UTF-8'>
+  <title>五子棋</title>
+  <style>
+    #border {
+      width: 650px;
+      height: 650px;
+    }
+
+    .cell {
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      border: 1px solid white;
+      background-color: rgb(25, 177, 63);
+      display: inline-block;
+      vertical-align: middle;
+      font-size: 25px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="border"></div>
+  <script>
+    let border = document.getElementById('border')
+    let pattern = [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    // let pattern = [
+    //   [0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0],
+    //   [0, 0, 0, 0, 0]
+    // ]
+    let color = 2
+
+    function show() {
+      border.innerHTML = ''
+      for (let i = 0; i < 12; i++) {
+        for (let j = 0; j < 12; j++) {
+          let cell = document.createElement('div')
+          cell.classList.add('cell')
+          cell.innerText = pattern[i][j] === 1 ? '❌' :
+            pattern[i][j] === 2 ? '⭕' : ''
+          cell.addEventListener('click', () => userMove(i, j))
+          border.appendChild(cell)
+        }
+      }
+    }
+
+    function userMove(i, j) {
+      if (pattern[i][j]) {
+        return
+      }
+      pattern[i][j] = color
+      if (check(pattern, color)) {
+        alert(color === 1 ? '❌ win' : '⭕ win')
+      }
+      color = 3 - color
+      show()
+      // computerMove()
+      if(willwin(pattern, color)) {
+        console.log(`${color === 1 ? '❌ will win' : '⭕ will win'}`)
+      }
+    }
+
+    function computerMove() {
+      let choice = bestChoice(pattern, color)
+      if (choice.point) {
+        point = choice.point
+        pattern[point[0]][point[1]] = color
+      }
+      if (check(pattern, color)) {
+        alert(color === 1 ? '❌ win' : '⭕ win')
+      }
+      color = 3 - color
+      console.log(bestChoice(pattern, color))
+      show()
+    }
+
+    function check(pattern, color) {
+      //判断横行是否获胜
+      {
+        let n = 0;
+
+        for (let i = 0; i < 12; i++) {
+          for (let j = 0; j < 12; j++) {
+            if (pattern[i][j] === color) {
+              n++
+              if (n === 5) {
+                return true
+              }
+            } else {
+              n = 0
+            }
+          }
+        }
+      }
+      //判断纵行是否获胜
+      {
+        let n = 0;
+
+        for (let i = 0; i < 12; i++) {
+          for (let j = 0; j < 12; j++) {
+            if (pattern[j][i] === color) {
+              n++
+              if (n === 5) {
+                return true
+              }
+            } else {
+              n = 0
+            }
+          }
+        }
+      }
+      //判断斜行是否获胜
+      {
+        let n = 0;
+
+        for (let i = 0; i < 12; i++) {
+          if (pattern[i][i] === color) {
+            n++
+            if (n === 5) {
+              return true
+            }
+          } else {
+            n = 0
+          }
+        }
+      }
+      {
+        let n = 0;
+
+        for (let i = 0; i < 12; i++) {
+          if (pattern[i][11 - i] === color) {
+            n++
+            if (n === 5) {
+              return true
+            }
+          } else {
+            n = 0
+          }
+        }
+      }
+      return false
+    }
+
+    function clone(pattern, color) {
+      return JSON.parse(JSON.stringify(pattern))
+    }
+
+    function willwin(pattern, color) {
+      for (let i = 0; i < 12; i++) {
+        for (let j = 0; j < 12; j++) {
+          if (pattern[i][j]) {
+            continue
+          }
+          let tmp = clone(pattern)
+          tmp[i][j] = color
+          if (check(tmp, color)) {
+            return [i, j]
+          }
+        }
+      }
+      return false
+    }
+
+    //定义三种状态：输 和 赢（willwin）
+    //输 -1： 对方赢（1）
+    //和  0： 棋盘下完还没有人赢
+    //赢  1： willwin （对方-1）
+    function bestChoice(pattern, color) {
+      let p
+      if (p = willwin(pattern, color)) {
+        return {
+          point: p,
+          result: 1
+        }
+      }
+      let result = -2;
+      let point = null;
+      for (let i = 0; i < 12; i++) {
+        for (let j = 0; j < 12; j++) {
+          if (pattern[i][j]) {
+            continue
+          }
+          let tmp = clone(pattern)
+          tmp[i][j] = color
+
+          //判断对方的最好结果
+          //对方的最好结果是我们的最坏结果
+          //反之，对方的最坏结果就是我们最好结果
+          //我们最好的结果比当前的结果好，就可以走这一步
+          //递归！！！！！！！！！！
+          let r = bestChoice(tmp, 3 - color).result //对方的最好结果
+          //-r 对方的最坏结果--己方的最好结果
+          if (-r > result) {
+            result = -r
+            point = [i, j]
+          }
+
+        }
+      }
+      return {
+        point,
+        result: point ? result : 0
+      }
+    }
+    show()
+  </script>
+</body>
+
+</html>
