@@ -1,3 +1,9 @@
+<!--
+ * @Author: ailiang
+ * @Date: 2020-12-02 09:11:26
+ * @LastEditors: ailiang
+ * @LastEditTime: 2020-12-07 14:21:23
+-->
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,9 +25,7 @@
 
   function delay(time) {
     return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve()
-      }, time)
+      setTimeout(resolve, time)
     })
   }
   async function changeColor(color, time) {
