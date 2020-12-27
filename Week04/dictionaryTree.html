@@ -1,0 +1,76 @@
+<!--
+ * @Author: ailiang
+ * @Date: 2020-12-23 14:53:47
+ * @LastEditors: ailiang
+ * @LastEditTime: 2020-12-23 16:59:52
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='UTF-8'>
+  <title>字典树</title>
+  <style>
+
+  </style>
+</head>
+
+<body>
+
+  <script>
+    let $ = Symbol('$')
+    class Trie {
+      constructor() {
+        this.root = Object.create(null)
+      }
+      insert(word) {
+        let node = this.root
+        for (let i of word) {
+          if (!node[i]) {
+            node[i] = Object.create(null)
+          }
+          node = node[i]
+        }
+        //结尾标识符
+        if (!($ in node)) {
+          node[$] = 0
+        }
+        //统计出现次数
+        node[$]++
+      }
+      most() {
+        let max = 0
+        //出现次数最多的字符串可能不止一个
+        let maxWord = []
+        let visit = (node, word) => {
+          if(node[$] && node[$] > max) {
+            max = node[$]
+            maxWord = [word]
+          }else if(node[$] && node[$] === max){
+            maxWord.push(word)
+          }
+          for(let p in node) {
+            visit(node[p], word + p)
+          }
+        }
+        visit(this.root, '')
+        console.log(maxWord, max)
+      }
+    }
+
+    function randomWord(length) {
+      let s = ''
+      for (let i = 0; i < length; i++) {
+        s += String.fromCharCode(Math.random() * 26 + 'a'.charCodeAt(0))
+      }
+      return s
+    }
+    let trie = new Trie()
+    for (let i = 0; i < 10000; i++) {
+      trie.insert(randomWord(4))
+    }
+
+  </script>
+</body>
+
+</html>
