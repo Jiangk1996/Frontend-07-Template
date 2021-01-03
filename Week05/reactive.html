@@ -1,0 +1,89 @@
+<!--
+ * @Author: ailiang
+ * @Date: 2021-01-03 10:22:46
+ * @LastEditors: ailiang
+ * @LastEditTime: 2021-01-03 20:05:45
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='UTF-8'>
+  <title>reactive</title>
+  <style>
+
+  </style>
+</head>
+
+<body>
+  <input type="text" id="r">
+  <script>
+    let useReactivies = []
+    let callbacks = new Map()
+    //添加reactivity缓存(无状态)
+    let reactivies = new Map()
+
+    let object = {
+      r: 1
+    }
+    let po = reactive(object)
+    effect(() => {
+      document.getElementById('r').value = po.r
+    })
+    //双向绑定 
+    document.getElementById('r').addEventListener('input', event => po.r = event.target.value)
+
+    function effect(callback) {
+      useReactivies = []
+      callback()
+      console.log(useReactivies)
+      for (let reactivity of useReactivies) {
+        let obj = reactivity[0]
+        let prop = reactivity[1]
+        if (!callbacks.has(obj)) {
+          callbacks.set(obj, new Map())
+        }
+        if (!callbacks.get(obj).has(prop)) {
+          callbacks.get(obj).set(prop, [])
+        }
+
+        callbacks.get(obj).get(prop).push(callback)
+      }
+    }
+
+    function reactive(object) {
+      if (reactivies.has(object)) {
+        return reactivies.get(object)
+      }
+      let proxy = new Proxy(object, {
+        get(obj, prop) {
+          //track()
+          useReactivies.push([obj, prop])
+          //深度响应式对象
+          if (typeof obj[prop] === 'object') {
+            return reactive(obj[prop])
+          }
+          return Reflect.get(obj, prop)
+        },
+        set(obj, prop, val) {
+          //trigger()
+          obj[prop] = val
+          if (callbacks.has(obj)) {
+            if (callbacks.get(obj).has(prop)) {
+              for (let callback of callbacks.get(obj).get(prop)) {
+                callback()
+              }
+            }
+          }
+          return Reflect.set(obj, prop, val)
+        }
+      })
+
+      reactivies.set(object, proxy)
+
+      return proxy
+    }
+  </script>
+</body>
+
+</html>

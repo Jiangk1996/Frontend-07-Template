@@ -1,0 +1,103 @@
+<!--
+ * @Author: ailiang
+ * @Date: 2021-01-03 20:06:58
+ * @LastEditors: ailiang
+ * @LastEditTime: 2021-01-03 20:29:47
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='UTF-8'>
+  <title>正常流拖拽</title>
+  <style>
+    #dragable {
+      display: inline-block;
+      width: 100px;
+      height: 100px;
+      background-color: pink;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container">
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字 文字 文字 文字
+
+  </div>
+  <div id="dragable"></div>
+  <script>
+    let dragable = document.getElementById('dragable')
+
+    let baseX = 0
+    let baseY = 0
+    dragable.addEventListener('mousedown', (e) => {
+      let startX = e.clientX
+      let startY = e.clientY
+
+      let up = () => {
+        baseX = baseX + event.clientX - startX
+        baseY = baseY + event.clientY - startY
+        document.removeEventListener('mousemove', move)
+        document.removeEventListener('mouseup', up)
+      }
+
+      let move = (event) => {
+        let range = getNearest(event.clientX, event.clientY)
+        range.insertNode(dragable)
+      }
+
+      document.addEventListener('mousemove', move)
+      document.addEventListener('mouseup', up)
+    })
+
+    let ranges = []
+    let container = document.getElementById('container')
+    for (let i = 0; i < container.childNodes[0].textContent.length; i++) {
+      range = document.createRange()
+      range.setStart(container.childNodes[0], i)
+      range.setEnd(container.childNodes[0], i)
+      ranges.push(range)
+    }
+
+    function getNearest(x, y) {
+      let min = Infinity
+      let nearest = null
+      for (let range of ranges) {
+        let rect = range.getBoundingClientRect()
+        let distance = (rect.x - x) ** 2 + (rect.y - y) ** 2
+        if (distance < min) {
+          min = distance
+          nearest = range
+        }
+
+      }
+      return nearest
+    }
+    document.addEventListener('selectstart', e => e.preventDefault())
+  </script>
+</body>
+
+</html>
